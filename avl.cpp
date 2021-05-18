@@ -58,15 +58,22 @@ void AVLTree<T>::correctBalance(Node<T>* &node)
 
 template <typename T>
 void AVLTree<T>::insert(Node<T>* &node, T value){
-    if (node == nullptr)
-        node = new Node<T>(value);
-    else if (value < node->data){
-        insert(node->left, value);
+    if(value > node->data){
+        if(!node->right){
+            node->right = new Node<T>(value);
+            if(!node->left) node->left = new Node<T>(node->data);
+        }else{
+            insert(node->right, value);
+        }
         node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
         correctBalance(node);
-    }
-    else {
-        insert(node->right, value);
+    }else{
+        if(!node->left){
+            node->left = new Node<T>(value, 1);
+            node->left->left = new Node<T>(value);
+        }else{
+            insert(node->left, value);
+        }
         node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
         correctBalance(node);
     }

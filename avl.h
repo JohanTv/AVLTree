@@ -16,7 +16,8 @@ private:
 public:
     AVLTree() : root(nullptr) {}
     void insert(T value){
-        insert(this->root, value);
+        if(this->root) insert(this->root, value);
+        else this->root = new Node<T>(value);
     }
     void printTree(){
         printTree(this->root, 0);
