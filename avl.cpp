@@ -70,7 +70,7 @@ Node<T>* RangeTree<T>::build2DRangeTreeUtil(vector<pair<T, T>>& pointSet){
         for(auto& point : pointSet)
             insert(rootTreeAssoc, point, 2);
         sort(pointSet.begin(), pointSet.end());
-        pair<T,T> mid = pointSet[pointSet.size()/2];
+        pair<T,T> mid = pointSet[pointSet.size()/2 - 1];
         vector<pair<T,T>> pleft, pright;
         for(auto& point : pointSet){
             if(point <= mid) pleft.push_back(point);
