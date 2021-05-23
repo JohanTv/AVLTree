@@ -66,8 +66,9 @@ Node<T>* RangeTree<T>::build2DRangeTreeUtil(vector<pair<T, T>>& pointSet){
         return leaf;
     }else{
         RangeTree<T>* treeAssoc = new RangeTree<T>();
+        auto rootTreeAssoc = treeAssoc->getRoot();
         for(auto& point : pointSet)
-            insert(treeAssoc.getRoot(), point, 2);
+            insert(rootTreeAssoc, point, 2);
         sort(pointSet.begin(), pointSet.end());
         pair<T,T> mid = pointSet[pointSet.size()/2];
         vector<pair<T,T>> pleft, pright;
@@ -77,59 +78,61 @@ Node<T>* RangeTree<T>::build2DRangeTreeUtil(vector<pair<T, T>>& pointSet){
         }
         Node<T>* leftNode = build2DRangeTreeUtil(pleft);
         Node<T>* rightNode = build2DRangeTreeUtil(pright);
-        Node<T>* v;
-        v.
-
+        Node<T>* v = new Node<T>();
+        v->left = leftNode;
+        v->right = rightNode;
+        v->treeAssociated = treeAssoc;
+        return v;
     }
 }
 
 template<typename T>
 Node<T>* RangeTree<T>::findSplitNode(Node<T>* treeRoot, T min, T max, int dimensionNumber){
     Node<T>* temp = treeRoot;
-    T value = temp->data.getDimensionValue(dimensionNumber);
+    T value = temp->getDimensionValue(dimensionNumber);
     while(temp->height != 0 and (max <= value || value < min)){
-        if(max <= temp->data) temp = temp->left;
+        if(max <= value) temp = temp->left;
         else temp = temp->right;
-        value = temp->data.getDimensionValue(dimensionNumber);
+        value = temp->getDimensionValue(dimensionNumber);
     }
     return temp;
 }
 
 template<typename T>
-vector<T> RangeTree<T>::rangeQuery1D(Node<T>* treeRoot, T min, T max){
+vector<pair<T, T>> RangeTree<T>::rangeQuery1D(Node<T>* treeRoot, T min, T max){
     Node<T>* splitNode = findSplitNode(treeRoot, min, max, 2);
-    vector<T> output;
+    vector<pair<T, T>> output;
     if(splitNode->height == 0){
         if(min <= splitNode->data.second && splitNode->data.second <= max)
             output.push_back(splitNode->data);
     }else{
         Node<T>* node = splitNode->left;
         while(node->height != 0){
-            if(min <= node->data){
-                vector<T> leaves = reportSubtree(node->right);
+            if(min <= node->data.second){
+                vector<pair<T, T>> leaves = reportSubtree(node->right);
                 output.insert(output.begin(), leaves.begin(), leaves.end());
                 node = node->left;
             }else node = node->right;
         }
-        if(min <= node->data) output.insert(output.begin(), node->data);
+        if(min <= node->data.second) output.insert(output.begin(), node->data);
 
         node = splitNode->right;
         while(node->height != 0){
-            if(node->data <= max){
-                vector<T> leaves = reportSubtree(node->left);
+            if(node->data.second <= max){
+                vector<pair<T, T>> leaves = reportSubtree(node->left);
                 output.insert(output.end(), leaves.begin(), leaves.end());
                 node = node->right;
             }else node = node->left;
         }
-        if(node->data <= max) output.insert(output.end(), node->data);
+        if(node->data.second <= max) output.insert(output.end(), node->data);
     }
     return output;
 }
 
 template<typename T>
-vector<T> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T,T> yrange){
+vector<pair<T, T>> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T,T> yrange){
     Node<T>* splitNode = findSplitNode(treeRoot, xrange.first, xrange.second, 1);
-    vector<T> output;
+    vector<pair<T, T>> output;
     if(splitNode->height == 0){
         if(xrange.first <= splitNode->data.first && splitNode->data.first <= xrange.second)
             output.push_back(splitNode->data);
@@ -137,7 +140,7 @@ vector<T> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T
         Node<T>* node = splitNode->left;
         while(node->height != 0){
             if(xrange.first <= node->data.first){
-                vector<T> leaves = rangeQuery1D(node->treeAssociated, yrange.first, yrange.second);
+                vector<pair<T, T>> leaves = rangeQuery1D(node->treeAssociated->getRoot(), yrange.first, yrange.second);
                 output.insert(output.begin(), leaves.begin(), leaves.end());
                 node = node->left;
             }else node = node->right;
@@ -147,7 +150,7 @@ vector<T> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T
         node = splitNode->right;
         while(node->height != 0){
             if(node->data.first <= xrange.second){
-                vector<T> leaves = rangeQuery1D(node->treeAssociated, yrange.first, yrange.second);
+                vector<pair<T, T>> leaves = rangeQuery1D(node->treeAssociated->getRoot(), yrange.first, yrange.second);
                 output.insert(output.end(), leaves.begin(), leaves.end());
                 node = node->right;
             }else node = node->left;
@@ -158,24 +161,25 @@ vector<T> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T
 }
 
 template <typename T>
-vector<T> RangeTree<T>::reportSubtree(Node<T>* node){
+vector<pair<T, T>> RangeTree<T>::reportSubtree(Node<T>* node){
     if(node->height == 0){
-        return vector<T>(1, node->data);
+        return vector<pair<T, T>>(1, node->data);
     }
-    vector<T> output;
-    vector<T> leaves1 = reportSubtree(node->left);
-    vector<T> leaves2 = reportSubtree(node->right);
+    vector<pair<T, T>> output;
+    vector<pair<T, T>> leaves1 = reportSubtree(node->left);
+    vector<pair<T, T>> leaves2 = reportSubtree(node->right);
     output.insert(output.begin(), leaves1.begin(), leaves1.end());
     output.insert(output.end(), leaves2.begin(), leaves2.end());
     return output;
 }
 template<typename T>
 void RangeTree<T>::insert(Node<T>* &node, pair<T,T> value, int dimensionNumber){
+    T toCompare = dimensionNumber == 1 ? value.first : value.second;
     if(node == nullptr){
         node = new Node<T>(value);
         return ;
     }
-    if(value.getDimensionValue(dimensionNumber) > node->data.getDimensionValue(dimensionNumber)){
+    if(toCompare > node->getDimensionValue(dimensionNumber)){
         if(!node->right){
             node->right = new Node<T>(value);
             node->left = new Node<T>(node->data);

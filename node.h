@@ -1,4 +1,5 @@
 #include <utility>
+using namespace std;
 
 template <typename T>
 class RangeTree;
@@ -8,12 +9,12 @@ struct Node{
     int height;
     Node* left; 
     Node* right;
-    std::pair<T, T> data; 
-    RangeTree* treeAssociated;
+    pair<T, T> data; 
+    RangeTree<T>* treeAssociated;
     
     Node() : left(nullptr), right(nullptr), height(0), treeAssociated(nullptr) {}   
-    Node(T value) : data(value), left(nullptr), right(nullptr), height(0), treeAssociated(nullptr) {}   
-    Node(T value, int height): data(value), left(nullptr), right(nullptr), height(height), treeAssociated(nullptr) {}
+    Node(pair<T,T> value) : data(value), left(nullptr), right(nullptr), height(0), treeAssociated(nullptr) {}   
+    Node(pair<T,T> value, int height): data(value), left(nullptr), right(nullptr), height(height), treeAssociated(nullptr) {}
 
     void killSelf(){
         if(left != nullptr) left->killSelf();

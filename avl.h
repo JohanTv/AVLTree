@@ -11,13 +11,13 @@ private:
     void rotationToLeft(Node<T>* &parent);
     void rotationToRight(Node<T>* &parent);
     void correctBalance(Node<T>* &node);
-    void insert(Node<T>* &node, T value);
+    void insert(Node<T>* &node, pair<T,T> value, int dimensionNumber);
     void printTree(Node<T>* &root, int space);
-    Node<T>* findSplitNode(T min, T max);
-    std::vector<T> reportSubtree(Node<T>* node);
-    std::vector<T> rangeQuery1D(Node<T>* treeRoot, T min, T max);
-    std::vector<T> rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T,T> yrange);
-
+    Node<T>* findSplitNode(Node<T>* treeRoot, T min, T max, int dimensionNumber);
+    vector<pair<T,T>> reportSubtree(Node<T>* node);
+    vector<pair<T,T>> rangeQuery1D(Node<T>* treeRoot, T min, T max);
+    vector<pair<T,T>> rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T,T> yrange);
+    Node<T>* build2DRangeTreeUtil(vector<pair<T, T>>& pointSet);
 public:
     RangeTree() : root(nullptr){}
     
@@ -29,9 +29,11 @@ public:
     void printTree(){
         printTree(this->root, 0);
     }
-    std::vector<T> rangeQuery1D(T min, T max);
-    std::vector<T> rangeQuery2D(T min, T max);
-
+    vector<pair<T,T>> rangeQuery2D(pair<T,T> xrange, pair<T,T> yrange){
+        return rangeQuery2D(this->root, xrange, yrange);
+    }
+    void build2DRangeTree(vector<pair<T, T>>& pointSet);
+    
     Node<T>* getRoot(){
         return this->root;
     }
