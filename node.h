@@ -1,3 +1,5 @@
+#include <utility>
+
 template <typename T>
 class RangeTree;
 
@@ -6,20 +8,21 @@ struct Node{
     int height;
     Node* left; 
     Node* right;
-    pair<T, T> data; 
+    std::pair<T, T> data; 
     RangeTree* treeAssociated;
     
-    Node() : left(nullptr), right(nullptr), height(0) {}   
-    Node(T value) : data(value), left(nullptr), right(nullptr), height(0) {}   
-    Node(T value, int height): data(value), left(nullptr), right(nullptr), height(height) {}
-    Node<T>* leftmost(){
-      if(this->left)
-        return this->left->leftmost();
-      return this;
-    }
+    Node() : left(nullptr), right(nullptr), height(0), treeAssociated(nullptr) {}   
+    Node(T value) : data(value), left(nullptr), right(nullptr), height(0), treeAssociated(nullptr) {}   
+    Node(T value, int height): data(value), left(nullptr), right(nullptr), height(height), treeAssociated(nullptr) {}
+
     void killSelf(){
         if(left != nullptr) left->killSelf();
         if(right != nullptr) right->killSelf();
         delete this;
+    }
+    
+    T getDimensionValue(int dimensionNumber){
+        if(dimensionNumber == 1) return data.first;
+        return data.second;
     }
 };

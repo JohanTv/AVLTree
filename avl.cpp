@@ -1,6 +1,6 @@
 #include "avl.h"
 #include <iostream>
-
+#include <algorithm>
 using namespace std;
 
 template <typename T>
@@ -55,21 +55,52 @@ void RangeTree<T>::correctBalance(Node<T>* &node) {
 }
 
 template<typename T>
-Node<T>* RangeTree<T>::findSplitNode(T min, T max){
-    Node<T>* temp = this->root;
-    while(temp->height != 0 and (max <= temp->data || temp->data < min)){
+void RangeTree<T>::build2DRangeTree(vector<pair<T, T>>& pointSet){
+    this->root = build2DRangeTreeUtil(pointSet);
+}
+
+template<typename T>
+Node<T>* RangeTree<T>::build2DRangeTreeUtil(vector<pair<T, T>>& pointSet){
+    if(pointSet.size() == 1){
+        Node<T>* leaf = new Node<T>(pointSet[0]);
+        return leaf;
+    }else{
+        RangeTree<T>* treeAssoc = new RangeTree<T>();
+        for(auto& point : pointSet)
+            insert(treeAssoc.getRoot(), point, 2);
+        sort(pointSet.begin(), pointSet.end());
+        pair<T,T> mid = pointSet[pointSet.size()/2];
+        vector<pair<T,T>> pleft, pright;
+        for(auto& point : pointSet){
+            if(point <= mid) pleft.push_back(point);
+            else pright.push_back(point);
+        }
+        Node<T>* leftNode = build2DRangeTreeUtil(pleft);
+        Node<T>* rightNode = build2DRangeTreeUtil(pright);
+        Node<T>* v;
+        v.
+
+    }
+}
+
+template<typename T>
+Node<T>* RangeTree<T>::findSplitNode(Node<T>* treeRoot, T min, T max, int dimensionNumber){
+    Node<T>* temp = treeRoot;
+    T value = temp->data.getDimensionValue(dimensionNumber);
+    while(temp->height != 0 and (max <= value || value < min)){
         if(max <= temp->data) temp = temp->left;
         else temp = temp->right;
+        value = temp->data.getDimensionValue(dimensionNumber);
     }
     return temp;
 }
 
 template<typename T>
-vector<T> RangeTree<T>::rangeQuery1D(T min, T max){
-    Node<T>* splitNode = findSplitNode(min, max);
+vector<T> RangeTree<T>::rangeQuery1D(Node<T>* treeRoot, T min, T max){
+    Node<T>* splitNode = findSplitNode(treeRoot, min, max, 2);
     vector<T> output;
     if(splitNode->height == 0){
-        if(min <= splitNode->data && splitNode->data <= max)
+        if(min <= splitNode->data.second && splitNode->data.second <= max)
             output.push_back(splitNode->data);
     }else{
         Node<T>* node = splitNode->left;
@@ -95,6 +126,37 @@ vector<T> RangeTree<T>::rangeQuery1D(T min, T max){
     return output;
 }
 
+template<typename T>
+vector<T> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T,T> yrange){
+    Node<T>* splitNode = findSplitNode(treeRoot, xrange.first, xrange.second, 1);
+    vector<T> output;
+    if(splitNode->height == 0){
+        if(xrange.first <= splitNode->data.first && splitNode->data.first <= xrange.second)
+            output.push_back(splitNode->data);
+    }else{
+        Node<T>* node = splitNode->left;
+        while(node->height != 0){
+            if(xrange.first <= node->data.first){
+                vector<T> leaves = rangeQuery1D(node->treeAssociated, yrange.first, yrange.second);
+                output.insert(output.begin(), leaves.begin(), leaves.end());
+                node = node->left;
+            }else node = node->right;
+        }
+        if(xrange.first <= node->data.first) output.insert(output.begin(), node->data);
+
+        node = splitNode->right;
+        while(node->height != 0){
+            if(node->data.first <= xrange.second){
+                vector<T> leaves = rangeQuery1D(node->treeAssociated, yrange.first, yrange.second);
+                output.insert(output.end(), leaves.begin(), leaves.end());
+                node = node->right;
+            }else node = node->left;
+        }
+        if(node->data.first <= xrange.second) output.insert(output.end(), node->data);
+    }
+    return output;
+}
+
 template <typename T>
 vector<T> RangeTree<T>::reportSubtree(Node<T>* node){
     if(node->height == 0){
@@ -107,31 +169,24 @@ vector<T> RangeTree<T>::reportSubtree(Node<T>* node){
     output.insert(output.end(), leaves2.begin(), leaves2.end());
     return output;
 }
-
-template <typename T>
-void RangeTree<T>::insert(Node<T>* &node, T value){
-    if(value[dimensionNumber] > node->data){
+template<typename T>
+void RangeTree<T>::insert(Node<T>* &node, pair<T,T> value, int dimensionNumber){
+    if(node == nullptr){
+        node = new Node<T>(value);
+        return ;
+    }
+    if(value.getDimensionValue(dimensionNumber) > node->data.getDimensionValue(dimensionNumber)){
         if(!node->right){
-            if(node->nextDimension){
-                node->nextDimension.insert(node->nextDimension->getRoot(), value);
-            }
-            else{
-                node->right = new Node<T>(value);
-                node->left = new Node<T>(node->data);
-            }
+            node->right = new Node<T>(value);
+            node->left = new Node<T>(node->data);
         }else
-            insert(node->right, value);
+            insert(node->right, value, dimensionNumber);
     }else{
         if(!node->left){
-            if(node->nextDimension){
-
-            }
-            else{
-                node->left = new Node<T>(value, 1);
-                node->left->left = new Node<T>(value);
-            }
+            node->left = new Node<T>(value, 1);
+            node->left->left = new Node<T>(value);
         }else
-            insert(node->left, value);
+            insert(node->left, value, dimensionNumber);
     }
     node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
     correctBalance(node);
