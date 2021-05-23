@@ -1,6 +1,6 @@
 #include "node.h"
 #define COUNT 10
-
+#include <vector>
 template <typename T>
 class AVLTree{
 private:
@@ -12,15 +12,12 @@ private:
     void correctBalance(Node<T>* &node);
     void insert(Node<T>* &node, T value);
     void printTree(Node<T>* &root, int space);
-    Node<T>* findClosest(Node<T>* &node, T value);
-
+    Node<T>* findSplitNode(T min, T max);
+    std::vector<T> reportSubtree(Node<T>* node);
 
 public:
     AVLTree() : root(nullptr) {}
 
-    Node<T>* findSplitNode(T min, T max);
-    Node<T>* RangeQuery1D(T min, T max);
-    
     void insert(T value){
         if(this->root) insert(this->root, value);
         else this->root = new Node<T>(value);
@@ -32,4 +29,5 @@ public:
     void printTree(){
         printTree(this->root, 0);
     }
+    std::vector<T> rangeQuery1D(T min, T max);
 };

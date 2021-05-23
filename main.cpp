@@ -8,9 +8,11 @@ void testInsertTree(){
         test.printTree();
         cout << " ------------------------- " << endl;
     }
-    //cout << test.find(11)->data;
-    cout << "SPLIT NODE >> ";
-    cout << test.findSplitNode(8, 14)->data << endl;
+    cout << "RESULT >> ";
+    for(auto& v: test.rangeQuery1D(5, 14)){
+        cout << v << " ";
+    }
+    cout << endl;
 }
 
 int main(){
