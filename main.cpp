@@ -8,7 +8,9 @@ void testInsertTree(){
         test.printTree();
         cout << " ------------------------- " << endl;
     }
-    cout << test.find(11)->data;
+    //cout << test.find(11)->data;
+    cout << "SPLIT NODE >> ";
+    cout << test.findSplitNode(8, 14)->data << endl;
 }
 
 int main(){

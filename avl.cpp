@@ -73,18 +73,21 @@ Node<T>* AVLTree<T>::findClosest(Node<T>* &node, T value){
     return node;
 }
 
-/*
-  template <typename T>
-  Node<T>* AVLTree<T>::findCommon(Node<T>* node, T min, T max){
-    if(node->data > min && node->data > max);
-    Node<T>* common 
-  };
-  
-  template <typename T>
-  Node<T>* AVLTree<T>::findRange(Node<T> node, T min, T max){
-    Node<T>* common = findCommon(min, max);
-  };
-*/
+template<typename T>
+Node<T>* AVLTree<T>::findSplitNode(T min, T max){
+    Node<T>* temp = this->root;
+    while(temp->height != 0 and (max <= temp->data || temp->data < min)){
+        if(max <= temp->data) temp = temp->left;
+        else temp = temp->right;
+    }
+    return temp;
+}
+
+template<typename T>
+Node<T>* AVLTree<T>::RangeQuery1D(T min, T max){
+    Node<T>* splitNode = findSplitNode(min, max);
+}
+
 template <typename T>
 void AVLTree<T>::insert(Node<T>* &node, T value){
     if(value > node->data){

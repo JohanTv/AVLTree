@@ -14,8 +14,13 @@ private:
     void printTree(Node<T>* &root, int space);
     Node<T>* findClosest(Node<T>* &node, T value);
 
+
 public:
     AVLTree() : root(nullptr) {}
+
+    Node<T>* findSplitNode(T min, T max);
+    Node<T>* RangeQuery1D(T min, T max);
+    
     void insert(T value){
         if(this->root) insert(this->root, value);
         else this->root = new Node<T>(value);
