@@ -1,9 +1,14 @@
 template <typename T>
+class RangeTree;
+
+template <typename T>
 struct Node{
-    T data;
     int height;
     Node* left; 
-    Node* right;    
+    Node* right;
+    pair<T, T> data; 
+    RangeTree* treeAssociated;
+    
     Node() : left(nullptr), right(nullptr), height(0) {}   
     Node(T value) : data(value), left(nullptr), right(nullptr), height(0) {}   
     Node(T value, int height): data(value), left(nullptr), right(nullptr), height(height) {}

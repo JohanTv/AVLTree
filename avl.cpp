@@ -4,18 +4,18 @@
 using namespace std;
 
 template <typename T>
-int AVLTree<T>::getHeight(Node<T>* &node){
+int RangeTree<T>::getHeight(Node<T>* &node){
     if(node) return node->height;
     return -1;
 }
 
 template <typename T>
-int AVLTree<T>::getBalanceFactor(Node<T>* &node){
+int RangeTree<T>::getBalanceFactor(Node<T>* &node){
     return getHeight(node->left) - getHeight(node->right);
 }
 
 template <typename T>
-void AVLTree<T>::rotationToLeft(Node<T>* &parent){
+void RangeTree<T>::rotationToLeft(Node<T>* &parent){
     Node<T>* temp = parent->right;
     parent->right = temp->left;
     temp->left = parent;
@@ -25,7 +25,7 @@ void AVLTree<T>::rotationToLeft(Node<T>* &parent){
 }
 
 template <typename T>
-void AVLTree<T>::rotationToRight(Node<T>* &parent){
+void RangeTree<T>::rotationToRight(Node<T>* &parent){
     Node<T>* temp = parent->left;
     parent->left = temp->right;
     temp->right = parent;
@@ -35,7 +35,7 @@ void AVLTree<T>::rotationToRight(Node<T>* &parent){
 }
 
 template <typename T>
-void AVLTree<T>::correctBalance(Node<T>* &node) {
+void RangeTree<T>::correctBalance(Node<T>* &node) {
     int hb = getBalanceFactor(node);
     if (hb >= 2) {
         if (getBalanceFactor(node->left) >= 1)
@@ -55,7 +55,7 @@ void AVLTree<T>::correctBalance(Node<T>* &node) {
 }
 
 template<typename T>
-Node<T>* AVLTree<T>::findSplitNode(T min, T max){
+Node<T>* RangeTree<T>::findSplitNode(T min, T max){
     Node<T>* temp = this->root;
     while(temp->height != 0 and (max <= temp->data || temp->data < min)){
         if(max <= temp->data) temp = temp->left;
@@ -65,7 +65,7 @@ Node<T>* AVLTree<T>::findSplitNode(T min, T max){
 }
 
 template<typename T>
-vector<T> AVLTree<T>::rangeQuery1D(T min, T max){
+vector<T> RangeTree<T>::rangeQuery1D(T min, T max){
     Node<T>* splitNode = findSplitNode(min, max);
     vector<T> output;
     if(splitNode->height == 0){
@@ -96,7 +96,7 @@ vector<T> AVLTree<T>::rangeQuery1D(T min, T max){
 }
 
 template <typename T>
-vector<T> AVLTree<T>::reportSubtree(Node<T>* node){
+vector<T> RangeTree<T>::reportSubtree(Node<T>* node){
     if(node->height == 0){
         return vector<T>(1, node->data);
     }
@@ -109,17 +109,27 @@ vector<T> AVLTree<T>::reportSubtree(Node<T>* node){
 }
 
 template <typename T>
-void AVLTree<T>::insert(Node<T>* &node, T value){
-    if(value > node->data){
+void RangeTree<T>::insert(Node<T>* &node, T value){
+    if(value[dimensionNumber] > node->data){
         if(!node->right){
-            node->right = new Node<T>(value);
-            node->left = new Node<T>(node->data);
+            if(node->nextDimension){
+                node->nextDimension.insert(node->nextDimension->getRoot(), value);
+            }
+            else{
+                node->right = new Node<T>(value);
+                node->left = new Node<T>(node->data);
+            }
         }else
             insert(node->right, value);
     }else{
         if(!node->left){
-            node->left = new Node<T>(value, 1);
-            node->left->left = new Node<T>(value);
+            if(node->nextDimension){
+
+            }
+            else{
+                node->left = new Node<T>(value, 1);
+                node->left->left = new Node<T>(value);
+            }
         }else
             insert(node->left, value);
     }
@@ -127,8 +137,10 @@ void AVLTree<T>::insert(Node<T>* &node, T value){
     correctBalance(node);
 }
 
+
+
 template <typename T>
-void AVLTree<T>::printTree(Node<T>* &root, int space){
+void RangeTree<T>::printTree(Node<T>* &root, int space){
     if (root == NULL) 
         return;
     space += COUNT;
