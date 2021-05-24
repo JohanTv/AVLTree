@@ -37,7 +37,7 @@ private:
         fstream file(this->result_filename, ios::out);
         response = test.rangeQuery2D(p1, p2);
         for(auto& v: response){
-            file << "(" << v.first << "," << v.second << ")" << endl;
+            file << v.first << " " << v.second << endl;
         }
         file.close();
     }
