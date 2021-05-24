@@ -61,14 +61,16 @@ void RangeTree<T>::build2DRangeTree(vector<pair<T, T>>& pointSet){
 
 template<typename T>
 Node<T>* RangeTree<T>::build2DRangeTreeUtil(vector<pair<T, T>>& pointSet){
+    RangeTree<T>* treeAssoc = new RangeTree<T>();
+    auto rootTreeAssoc = treeAssoc->getRoot();
+    for(auto& point : pointSet)
+        insert(rootTreeAssoc, point, 2);
+    treeAssoc->setRoot(rootTreeAssoc);
     if(pointSet.size() == 1){
         Node<T>* leaf = new Node<T>(pointSet[0]);
+        leaf->treeAssociated = treeAssoc;
         return leaf;
     }else{
-        RangeTree<T>* treeAssoc = new RangeTree<T>();
-        auto rootTreeAssoc = treeAssoc->getRoot();
-        for(auto& point : pointSet)
-            insert(rootTreeAssoc, point, 2);
         sort(pointSet.begin(), pointSet.end());
         pair<T,T> mid = pointSet[pointSet.size()/2 - 1];
         vector<pair<T,T>> pleft, pright;
@@ -78,10 +80,11 @@ Node<T>* RangeTree<T>::build2DRangeTreeUtil(vector<pair<T, T>>& pointSet){
         }
         Node<T>* leftNode = build2DRangeTreeUtil(pleft);
         Node<T>* rightNode = build2DRangeTreeUtil(pright);
-        Node<T>* v = new Node<T>();
+        Node<T>* v = new Node<T>(mid);
         v->left = leftNode;
         v->right = rightNode;
         v->treeAssociated = treeAssoc;
+        v->height = max(getHeight(v->left), getHeight(v->right)) + 1;
         return v;
     }
 }
@@ -130,6 +133,11 @@ vector<pair<T, T>> RangeTree<T>::rangeQuery1D(Node<T>* treeRoot, T min, T max){
 }
 
 template<typename T>
+bool RangeTree<T>::compare(pair<T,T> a, pair<T,T> b){
+    return a.first == b.first && a.second == b.second; 
+}
+
+template<typename T>
 vector<pair<T, T>> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T,T> yrange){
     Node<T>* splitNode = findSplitNode(treeRoot, xrange.first, xrange.second, 1);
     vector<pair<T, T>> output;
@@ -157,6 +165,8 @@ vector<pair<T, T>> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrang
         }
         if(node->data.first <= xrange.second) output.insert(output.end(), node->data);
     }
+    sort(output.begin(), output.end());
+    output.erase(unique(output.begin(), output.end()), output.end());
     return output;
 }
 
@@ -207,6 +217,6 @@ void RangeTree<T>::printTree(Node<T>* &root, int space){
     cout << endl; 
     for (int i = COUNT; i < space; i++) 
         cout<<" "; 
-    cout << root->data << endl;
+    cout << "(" << root->data.first << ", "<<root->data.second << ") " << endl;
     printTree(root->left, space); 
 } 
