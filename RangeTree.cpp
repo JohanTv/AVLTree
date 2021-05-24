@@ -61,16 +61,15 @@ void RangeTree<T>::build2DRangeTree(vector<pair<T, T>>& pointSet){
 
 template<typename T>
 Node<T>* RangeTree<T>::build2DRangeTreeUtil(vector<pair<T, T>>& pointSet){
-    RangeTree<T>* treeAssoc = new RangeTree<T>();
-    auto rootTreeAssoc = treeAssoc->getRoot();
-    for(auto& point : pointSet)
-        insert(rootTreeAssoc, point, 2);
-    treeAssoc->setRoot(rootTreeAssoc);
     if(pointSet.size() == 1){
         Node<T>* leaf = new Node<T>(pointSet[0]);
-        leaf->treeAssociated = treeAssoc;
         return leaf;
     }else{
+        RangeTree<T>* treeAssoc = new RangeTree<T>();
+        auto rootTreeAssoc = treeAssoc->getRoot();
+        for(auto& point : pointSet)
+            insert(rootTreeAssoc, point, 2);
+        treeAssoc->setRoot(rootTreeAssoc);
         sort(pointSet.begin(), pointSet.end());
         pair<T,T> mid = pointSet[pointSet.size()/2 - 1];
         vector<pair<T,T>> pleft, pright;
