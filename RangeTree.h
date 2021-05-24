@@ -18,7 +18,7 @@ private:
     vector<pair<T,T>> rangeQuery1D(Node<T>* treeRoot, T min, T max);
     vector<pair<T,T>> rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T,T> yrange);
     Node<T>* build2DRangeTreeUtil(vector<pair<T, T>>& pointSet);
-    bool compare(pair<T,T> a, pair<T,T> b);
+
 public:
     RangeTree() : root(nullptr){}
     
@@ -30,14 +30,17 @@ public:
     void printTree(){
         printTree(this->root, 0);
     }
+
     vector<pair<T,T>> rangeQuery2D(pair<T,T> a, pair<T,T> b){
         return rangeQuery2D(this->root, {a.first, b.first} , {a.second, b.second});
     }
+
     void build2DRangeTree(vector<pair<T, T>>& pointSet);
     
     Node<T>* getRoot(){
         return this->root;
     }
+    
     void setRoot(Node<T>* root){
         this->root = root;
     }

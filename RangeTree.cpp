@@ -133,11 +133,6 @@ vector<pair<T, T>> RangeTree<T>::rangeQuery1D(Node<T>* treeRoot, T min, T max){
 }
 
 template<typename T>
-bool RangeTree<T>::compare(pair<T,T> a, pair<T,T> b){
-    return a.first == b.first && a.second == b.second; 
-}
-
-template<typename T>
 vector<pair<T, T>> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrange, pair<T,T> yrange){
     Node<T>* splitNode = findSplitNode(treeRoot, xrange.first, xrange.second, 1);
     vector<pair<T, T>> output;
@@ -148,22 +143,26 @@ vector<pair<T, T>> RangeTree<T>::rangeQuery2D(Node<T>* treeRoot, pair<T,T> xrang
         Node<T>* node = splitNode->left;
         while(node->height != 0){
             if(xrange.first <= node->data.first){
-                vector<pair<T, T>> leaves = rangeQuery1D(node->treeAssociated->getRoot(), yrange.first, yrange.second);
+                vector<pair<T, T>> leaves = rangeQuery1D(node->right->treeAssociated->getRoot(), yrange.first, yrange.second);
                 output.insert(output.begin(), leaves.begin(), leaves.end());
                 node = node->left;
             }else node = node->right;
         }
-        if(xrange.first <= node->data.first) output.insert(output.begin(), node->data);
+        if(xrange.first <= node->data.first && node->data.first <= xrange.second
+            && yrange.first <= node->data.second && node->data.second <= yrange.second) 
+            output.insert(output.begin(), node->data);
 
         node = splitNode->right;
         while(node->height != 0){
             if(node->data.first <= xrange.second){
-                vector<pair<T, T>> leaves = rangeQuery1D(node->treeAssociated->getRoot(), yrange.first, yrange.second);
+                vector<pair<T, T>> leaves = rangeQuery1D(node->left->treeAssociated->getRoot(), yrange.first, yrange.second);
                 output.insert(output.end(), leaves.begin(), leaves.end());
                 node = node->right;
             }else node = node->left;
         }
-        if(node->data.first <= xrange.second) output.insert(output.end(), node->data);
+        if(xrange.first <= node->data.first && node->data.first <= xrange.second
+            && yrange.first <= node->data.second && node->data.second <= yrange.second) 
+            output.insert(output.begin(), node->data);
     }
     sort(output.begin(), output.end());
     output.erase(unique(output.begin(), output.end()), output.end());
